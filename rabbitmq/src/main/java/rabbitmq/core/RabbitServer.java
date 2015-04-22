@@ -17,6 +17,7 @@ import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
+import org.springframework.amqp.rabbit.retry.RepublishMessageRecoverer;
 import org.springframework.amqp.support.converter.ContentTypeDelegatingMessageConverter;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.JsonMessageConverter;
@@ -28,7 +29,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 
+import org.springframework.retry.interceptor.RetryOperationsInterceptor;
+import org.springframework.retry.interceptor.StatefulRetryOperationsInterceptor;
+
 import com.rabbitmq.client.AMQP.Exchange;
+import com.rabbitmq.tools.Tracer;
+
 
 @Configuration
 @ConfigurationProperties(prefix = "rebbitmq")
@@ -131,7 +137,8 @@ public class RabbitServer {
 
 	@Bean
 	public AmqpAdmin amqpAdmin() {
-		return new RabbitAdmin(connectionFactory());
+		RabbitAdmin rabbitAdmin = new RabbitAdmin(connectionFactory());
+		return rabbitAdmin;
 	}
 
 	@Bean
@@ -148,7 +155,8 @@ public class RabbitServer {
 
 	@Bean
 	DirectExchange exchange() {
-		return new DirectExchange(getExchangeName());
+		 DirectExchange directExchange = new DirectExchange(getExchangeName());
+		 return directExchange;
 	}
 
 	@Bean(name = "myQueue")
@@ -195,7 +203,8 @@ public class RabbitServer {
 		return new Jackson2JsonMessageConverter();
 
 	}
-	
+
+
 
 
 }
